@@ -7,14 +7,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import me.neymardev.worldinventories.Main;
+import me.neymardev.worldinventories.inventoryhandler.InventoryHandler;
 
 public class EventListener implements Listener{
-	private Main plugin;
+	private InventoryHandler inventoryHandler;
 	
 	
-	public EventListener(Main plugin) {
-		this.plugin = plugin;
+	public EventListener(InventoryHandler handler) {
+		this.inventoryHandler = handler;
 	}
 
 	@EventHandler
@@ -23,14 +23,14 @@ public class EventListener implements Listener{
 		Bukkit.broadcastMessage("Player " + player.getName() + " moved from " + 
 				event.getFrom().getName() + " to " + player.getWorld().getName());
 		
-		plugin.addPlayerInventory(event.getFrom().getName(), event.getPlayer());
-		plugin.printCurrentHashMap(event.getFrom().getName());
-		plugin.printCurrentHashMap(player.getWorld().getName());
+		inventoryHandler.addPlayerInventory(event.getFrom().getName(), event.getPlayer());
+		inventoryHandler.printCurrentHashMap(event.getFrom().getName());
+		inventoryHandler.printCurrentHashMap(player.getWorld().getName());
 		
 		player.getInventory().clear();
 		Bukkit.broadcastMessage("After clearing");
-		plugin.printCurrentHashMap(event.getFrom().getName());
-		plugin.setPlayerInventory(player);
+		inventoryHandler.printCurrentHashMap(event.getFrom().getName());
+		inventoryHandler.setPlayerInventory(player);
 		
 	}
 
