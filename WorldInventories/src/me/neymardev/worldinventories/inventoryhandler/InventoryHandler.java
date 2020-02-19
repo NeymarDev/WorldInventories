@@ -2,6 +2,7 @@ package me.neymardev.worldinventories.inventoryhandler;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -11,17 +12,30 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.neymardev.worldinventories.Main;
+import me.neymardev.worldinventories.confighandler.ConfigHandler;
 
 public class InventoryHandler {
+	//--------------------------------------------------------------
+	// class members
 	private Main plugin;
-	HashMap<String, HashMap<UUID, ItemStack[]>> world_inventories;
+	private HashMap<String, HashMap<UUID, ItemStack[]>> world_inventories;
+	private HashMap<String, List<String>> groups;
+	//--------------------------------------------------------------	
 	
-	public InventoryHandler(Main plugin) {
+	public InventoryHandler(Main plugin, HashMap<String, List<String>> worldGroups) {
 		this.plugin = plugin;
 		world_inventories = new HashMap<String, HashMap<UUID, ItemStack[]>>();
+		groups = worldGroups;
 	}
 
-	public void createNestedHashMaps() {
+	public boolean isInvChangeNeeded(String from_world, String dest_world) {
+		
+		for(String key: groups.keySet())
+		
+		return true;
+	}
+	
+	private void createNestedHashMaps() {
 		String[] worldName = getWorldNames();
 		
 		for(String world: worldName) 
@@ -29,7 +43,7 @@ public class InventoryHandler {
 		worldName = null;
 	}
 	
-	public String[] getWorldNames() {
+	private String[] getWorldNames() {
 		String[] worldNames = new String[Bukkit.getServer().getWorlds().size()];
 		int count = 0;
 		for(World w : Bukkit.getServer().getWorlds()) {

@@ -1,34 +1,34 @@
 package me.neymardev.worldinventories;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.UUID;
-import java.util.jar.Attributes.Name;
+import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.neymardev.worldinventories.confighandler.ConfigHandler;
 import me.neymardev.worldinventories.events.EventListener;
 import me.neymardev.worldinventories.inventoryhandler.InventoryHandler;
 
 public class Main extends JavaPlugin{
+	//--------------------------------------------------------------
+	// class members
 	private static Main plugin;
 	private static InventoryHandler inventoryHandler;
-  
+	private static ConfigHandler cfgHandler;
+	
+	//--------------------------------------------------------------
+	
 	 @Override
 	 public void onEnable() {
-		 System.out.print("Starting worldinventories!");
+		 
 		 plugin = this;
-		 inventoryHandler = new InventoryHandler(plugin);
+		 cfgHandler = new ConfigHandler(plugin);
+		 cfgHandler.loadConfiguration();
+		 HashMap<String, List<String>> worldGroups = cfgHandler.readConfiguration();
 		 
-		 
-		 
+		 inventoryHandler = new InventoryHandler(plugin, worldGroups);
 		 getServer().getPluginManager().registerEvents(new EventListener(inventoryHandler), this);
+		 System.out.print("[WorldInventories] Plugin ready!");
 		 //getCommand("toastmessage").setExecutor(new ToastMessengerCommandExecutor(plugin));
 	 }
  
@@ -39,7 +39,5 @@ public class Main extends JavaPlugin{
 	 inventoryHandler = null;
 	 super.onDisable();
 	}
-	 
-	
-	
+
 }

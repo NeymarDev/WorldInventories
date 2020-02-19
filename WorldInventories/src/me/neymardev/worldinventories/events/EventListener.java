@@ -10,7 +10,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import me.neymardev.worldinventories.inventoryhandler.InventoryHandler;
 
 public class EventListener implements Listener{
+	//--------------------------------------------------------------
+	// class members
 	private InventoryHandler inventoryHandler;
+	
+	//--------------------------------------------------------------
 	
 	
 	public EventListener(InventoryHandler handler) {
@@ -22,6 +26,9 @@ public class EventListener implements Listener{
 		Player player = event.getPlayer();
 		Bukkit.broadcastMessage("Player " + player.getName() + " moved from " + 
 				event.getFrom().getName() + " to " + player.getWorld().getName());
+		
+		if(!inventoryHandler.isInvChangeNeeded(event.getFrom().getName(), player.getWorld().getName()))
+			return;
 		
 		inventoryHandler.addPlayerInventory(event.getFrom().getName(), event.getPlayer());
 		inventoryHandler.printCurrentHashMap(event.getFrom().getName());
