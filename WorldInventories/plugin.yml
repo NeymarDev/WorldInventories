@@ -1,0 +1,4 @@
+name: WorldInventories
+main: me.neymardev.worldinventories.Main
+version: 1.0
+commands:
