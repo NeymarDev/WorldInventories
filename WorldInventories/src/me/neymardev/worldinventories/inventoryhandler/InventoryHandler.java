@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.filefilter.AndFileFilter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -26,53 +27,64 @@ public class InventoryHandler {
 		this.plugin = plugin;
 		world_inventories = new HashMap<String, HashMap<UUID, ItemStack[]>>();
 		groups = worldGroups;
+		createNestedHashMaps();
 	}
 
 	public boolean isInvChangeNeeded(String from_world, String dest_world) {
 		
-		for(String key: groups.keySet())
+		for(String key: groups.keySet()) {
+			List<String> tempList = groups.get(key);
+			if(key.equalsIgnoreCase(from_world)) {
+				if(groups.get(key).contains(dest_world))
+					return false;				
+			}
+			else if (key.equalsIgnoreCase(dest_world)) {
+				if(groups.get(key).contains(from_world))
+					return false;
+			}
+			else {
+				if(tempList.contains(dest_world) && tempList.contains(from_world))
+					return false;
+			}
+		}
 		
 		return true;
 	}
 	
 	private void createNestedHashMaps() {
-		String[] worldName = getWorldNames();
-		
-		for(String world: worldName) 
+		for(String world: groups.keySet()) 
 			world_inventories.put(world, new HashMap<UUID, ItemStack[]>());
-		worldName = null;
 	}
 	
-	private String[] getWorldNames() {
-		String[] worldNames = new String[Bukkit.getServer().getWorlds().size()];
-		int count = 0;
-		for(World w : Bukkit.getServer().getWorlds()) {
-			worldNames[count] = w.getName(); 
-			count++;
+	private String findMapKey(String worldName) {
+		if(groups.containsKey(worldName))
+			return worldName;
+		
+		for(String key: groups.keySet()) {
+			List<String> tempList = groups.get(key);
+			if(tempList.contains(worldName))
+				return key;
 		}
-		for(String s : worldNames){
-		System.out.println("World Names = " + s);
-		}
-		return worldNames;
+		
+		return null;
 	}
 
-	public void addPlayerInventory(String world_name, Player player) {
-		player.sendMessage("\n\n\nSaving inventory to hashmap");
+	public void addPlayerInventory(String worldName, Player player) {
 		UUID player_uuid = player.getUniqueId();
 		Inventory player_Inventory = player.getInventory();
+		worldName = findMapKey(worldName);
 		
-		HashMap<UUID, ItemStack[]> allInventories = world_inventories.get(world_name);
+		HashMap<UUID, ItemStack[]> allInventories = world_inventories.get(worldName);
 		if(allInventories.containsKey(player_uuid))
 		{
-			Bukkit.broadcastMessage("Replacing inv: " + world_name);
-			world_inventories.get(world_name).replace(player_uuid, copyInventory(player_Inventory));
+			Bukkit.broadcastMessage("Replacing inv: " + worldName);
+			world_inventories.get(worldName).replace(player_uuid, copyInventory(player_Inventory));
 		}
 		else 
-			world_inventories.get(world_name).put(player_uuid, copyInventory(player_Inventory));
+			world_inventories.get(worldName).put(player_uuid, copyInventory(player_Inventory));
 	}
 	
-	private ItemStack[] copyInventory(Inventory inv)
-    {
+	private ItemStack[] copyInventory(Inventory inv) {
         ItemStack[] original = inv.getContents();
         ItemStack[] copy = new ItemStack[original.length];
         for(int i = 0; i < original.length; ++i)
@@ -100,7 +112,7 @@ public class InventoryHandler {
 	
 	//https://bukkit.org/threads/serialize-inventory-to-single-string-and-vice-versa.92094/
 	public void setPlayerInventory(Player player) {
-		String worldName = player.getWorld().getName();
+		String worldName = findMapKey(player.getWorld().getName());
 		Bukkit.broadcastMessage("World: " + worldName + " player: " + player.getName());
 		ItemStack[] playerInventory = world_inventories.get(worldName).get(player.getUniqueId());
 		if(playerInventory == null)
