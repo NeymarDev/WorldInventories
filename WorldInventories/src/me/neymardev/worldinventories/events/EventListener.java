@@ -31,12 +31,9 @@ public class EventListener implements Listener{
 			return;
 		
 		Bukkit.broadcastMessage("Inv change needed!!");
+
 		inventoryHandler.addPlayerInventory(event.getFrom().getName(), event.getPlayer());
-		inventoryHandler.printCurrentHashMap(event.getFrom().getName());
-		inventoryHandler.printCurrentHashMap(player.getWorld().getName());
 		
-		player.getInventory().clear();
-		inventoryHandler.printCurrentHashMap(event.getFrom().getName());
 		inventoryHandler.setPlayerInventory(player);
 		
 	}

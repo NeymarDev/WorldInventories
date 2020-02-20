@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.filefilter.AndFileFilter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.server.BroadcastMessageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,69 +20,61 @@ public class InventoryHandler {
 	//--------------------------------------------------------------
 	// class members
 	private Main plugin;
-	private HashMap<String, HashMap<UUID, ItemStack[]>> world_inventories;
-	private HashMap<String, List<String>> groups;
+	private HashMap<String, HashMap<UUID, ItemStack[]>> world_inventories_;
+	private HashMap<String, List<String>> world_groups_;
 	//--------------------------------------------------------------	
 	
 	public InventoryHandler(Main plugin, HashMap<String, List<String>> worldGroups) {
 		this.plugin = plugin;
-		world_inventories = new HashMap<String, HashMap<UUID, ItemStack[]>>();
-		groups = worldGroups;
+		world_inventories_ = new HashMap<String, HashMap<UUID, ItemStack[]>>();
+		world_groups_ = worldGroups;
 		createNestedHashMaps();
 	}
 
 	public boolean isInvChangeNeeded(String from_world, String dest_world) {
 		
-		for(String key: groups.keySet()) {
-			List<String> tempList = groups.get(key);
-			if(key.equalsIgnoreCase(from_world)) {
-				if(groups.get(key).contains(dest_world))
-					return false;				
-			}
-			else if (key.equalsIgnoreCase(dest_world)) {
-				if(groups.get(key).contains(from_world))
-					return false;
-			}
-			else {
-				if(tempList.contains(dest_world) && tempList.contains(from_world))
-					return false;
-			}
+		for(String key: world_groups_.keySet()) {
+			List<String> tempList = world_groups_.get(key);
+			if(tempList.contains(dest_world) && tempList.contains(from_world))
+				return false;
 		}
 		
 		return true;
 	}
 	
 	private void createNestedHashMaps() {
-		for(String world: groups.keySet()) 
-			world_inventories.put(world, new HashMap<UUID, ItemStack[]>());
+		for(String groupedInventories: world_groups_.keySet()) 
+			world_inventories_.put(groupedInventories, new HashMap<UUID, ItemStack[]>());
 	}
 	
-	private String findMapKey(String worldName) {
-		if(groups.containsKey(worldName))
-			return worldName;
-		
-		for(String key: groups.keySet()) {
-			List<String> tempList = groups.get(key);
+	private String findGroup(String worldName) {
+		Bukkit.broadcastMessage("Looking for: " + worldName + " in groups: " + world_groups_ + "\n\n");
+		for(String groupedName: world_groups_.keySet()) {
+			List<String> tempList = world_groups_.get(groupedName);
 			if(tempList.contains(worldName))
-				return key;
+				return groupedName;
 		}
-		
 		return null;
 	}
 
 	public void addPlayerInventory(String worldName, Player player) {
 		UUID player_uuid = player.getUniqueId();
 		Inventory player_Inventory = player.getInventory();
-		worldName = findMapKey(worldName);
+		String groupName = findGroup(worldName);
+		if(groupName == null) {
+			Bukkit.broadcastMessage("[WI]: Group not found in config!");
+			return;
+		}
 		
-		HashMap<UUID, ItemStack[]> allInventories = world_inventories.get(worldName);
-		if(allInventories.containsKey(player_uuid))
-		{
-			Bukkit.broadcastMessage("Replacing inv: " + worldName);
-			world_inventories.get(worldName).replace(player_uuid, copyInventory(player_Inventory));
+		Bukkit.broadcastMessage("Received worldname: " + worldName + " group: " + groupName);
+		HashMap<UUID, ItemStack[]> allInventories = world_inventories_.get(groupName);
+		if(allInventories.containsKey(player_uuid)) {
+			world_inventories_.get(groupName).replace(player_uuid, copyInventory(player_Inventory));
 		}
 		else 
-			world_inventories.get(worldName).put(player_uuid, copyInventory(player_Inventory));
+			world_inventories_.get(groupName).put(player_uuid, copyInventory(player_Inventory));
+	
+		player_Inventory.clear();
 	}
 	
 	private ItemStack[] copyInventory(Inventory inv) {
@@ -93,9 +86,14 @@ public class InventoryHandler {
         return copy;
     }
 	
-	public void printCurrentHashMap(String world_name) {
-		Bukkit.broadcastMessage("PRINTING FOR WORLD " + world_name);
-		HashMap<UUID, ItemStack[]> player_inventory = world_inventories.get(world_name);
+	public void printCurrentHashMap(String worldName) {
+		Bukkit.broadcastMessage("PRINTING FOR WORLD " + worldName);
+		String groupName = findGroup(worldName);
+		if(groupName == null) {
+			Bukkit.broadcastMessage("[WI]: Group not found in config!");
+			return;
+		}
+		HashMap<UUID, ItemStack[]> player_inventory = world_inventories_.get(groupName);
 		if(player_inventory.isEmpty()){
 			Bukkit.broadcastMessage("Hash map empty");
 			return;
@@ -112,9 +110,17 @@ public class InventoryHandler {
 	
 	//https://bukkit.org/threads/serialize-inventory-to-single-string-and-vice-versa.92094/
 	public void setPlayerInventory(Player player) {
-		String worldName = findMapKey(player.getWorld().getName());
-		Bukkit.broadcastMessage("World: " + worldName + " player: " + player.getName());
-		ItemStack[] playerInventory = world_inventories.get(worldName).get(player.getUniqueId());
+		String worldName = player.getWorld().getName().toString();
+		
+		String groupName = findGroup(worldName);
+		if(groupName == null)
+		{
+			Bukkit.broadcastMessage("[WI]: Group not found in config!");
+			return;
+		}
+		Bukkit.broadcastMessage("World: " + worldName + " player: " + player.getName() + " found group: "+ groupName);
+		
+		ItemStack[] playerInventory = world_inventories_.get(groupName).get(player.getUniqueId());
 		if(playerInventory == null)
 			return;
 		for(ItemStack item: playerInventory)
@@ -128,7 +134,7 @@ public class InventoryHandler {
 		if(playerInventory != null)
 		{
 			Bukkit.broadcastMessage("Updating player inventory");
-			Bukkit.broadcastMessage("Inv contents: " + Arrays.toString(player.getInventory().getContents()));
+			Bukkit.broadcastMessage("Inv contents: " + Arrays.toString(playerInventory));
 			player.getInventory().setContents(playerInventory);
 			
 			addPlayerInventory(worldName, player);
