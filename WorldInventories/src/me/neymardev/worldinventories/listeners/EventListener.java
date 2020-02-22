@@ -13,7 +13,6 @@ public class EventListener implements Listener{
     //--------------------------------------------------------------
     // class members
     private InventoryHandler inventoryHandler;
-
     //--------------------------------------------------------------
 
 
@@ -24,7 +23,7 @@ public class EventListener implements Listener{
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent event){
         Player player = event.getPlayer();
-        Bukkit.broadcastMessage("Player " + player.getName() + " moved from " + 
+        Bukkit.broadcastMessage("Player " + player.getName() + " moved from " +
                 event.getFrom().getName() + " to " + player.getWorld().getName());
 
         if(!inventoryHandler.isInvChangeNeeded(event.getFrom().getName(), player.getWorld().getName()))
@@ -32,11 +31,13 @@ public class EventListener implements Listener{
 
         Bukkit.broadcastMessage("Inv change needed!!");
 
-        inventoryHandler.addPlayerInventory(event.getFrom().getName(), event.getPlayer());
+        inventoryHandler.storePlayerInventory(event.getFrom().getName(), event.getPlayer());
 
         event.getPlayer().getInventory().clear();
+        event.getPlayer().setExp(0);
+        event.getPlayer().setLevel(0);
 
-        inventoryHandler.setNewInventory(player);
+        inventoryHandler.loadPlayerInventory(player);
 
     }
 

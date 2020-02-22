@@ -15,7 +15,6 @@ public class Main extends JavaPlugin{
     private static Main plugin;
     private static InventoryHandler inventoryHandler;
     private static ConfigHandler cfgHandler;
-
     //--------------------------------------------------------------
 
     @Override

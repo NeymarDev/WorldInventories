@@ -14,7 +14,6 @@ public class ConfigHandler {
     //--------------------------------------------------------------
     // class members
     private static Main plugin;
-
     //--------------------------------------------------------------
 
     public ConfigHandler(Main pl) {
