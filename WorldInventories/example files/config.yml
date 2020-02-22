@@ -1,0 +1,6 @@
+inv:
+  group1:
+  - world_the_end
+  - world
+  group2:
+  - world_nether
