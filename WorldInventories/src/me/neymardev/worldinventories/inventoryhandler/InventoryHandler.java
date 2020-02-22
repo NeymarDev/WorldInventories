@@ -15,14 +15,12 @@ import me.neymardev.worldinventories.experience.PlayerExperienceHolder;
 public class InventoryHandler {
     //--------------------------------------------------------------
     // class members
-    private Main plugin;
     private HashMap<String, HashMap<UUID, ItemStack[]>> inventories_;
     private HashMap<String, HashMap<UUID, PlayerExperienceHolder>> experience_;
     private HashMap<String, List<String>> groups_;
     //--------------------------------------------------------------
 
     public InventoryHandler(Main plugin, HashMap<String, List<String>> worldGroups) {
-        this.plugin = plugin;
         inventories_ = new HashMap<String, HashMap<UUID, ItemStack[]>>();
         experience_ = new HashMap<String, HashMap<UUID, PlayerExperienceHolder>>();
         groups_ = worldGroups;

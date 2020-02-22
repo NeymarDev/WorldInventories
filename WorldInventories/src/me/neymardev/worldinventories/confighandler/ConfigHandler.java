@@ -1,10 +1,8 @@
 package me.neymardev.worldinventories.confighandler;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
 import me.neymardev.worldinventories.Main;
@@ -13,7 +11,7 @@ public class ConfigHandler {
 
     //--------------------------------------------------------------
     // class members
-    private static Main plugin;
+    private Main plugin;
     //--------------------------------------------------------------
 
     public ConfigHandler(Main pl) {
