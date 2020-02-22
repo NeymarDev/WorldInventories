@@ -108,26 +108,4 @@ public class InventoryHandler {
         storePlayerInventory(worldName, player);
         //player.updateInventory();
     }
-
-    //--------------------------------------------------------------
-    // DEBUGING FUNCTION
-    public void printCurrentHashMap(String worldName) {
-        String groupName = findGroup(worldName);
-        if(groupName == null)
-            return;
-
-        HashMap<UUID, ItemStack[]> player_inventory = inventories_.get(groupName);
-        if(player_inventory.isEmpty()){
-            return;
-        }
-        for(UUID uuid: player_inventory.keySet()) {
-            for(ItemStack item: player_inventory.get(uuid))
-            {
-                if(item == null)
-                    continue;
-                Bukkit.broadcastMessage("value: " + item.getType().toString());
-            }
-        }
-    }
-    //--------------------------------------------------------------
 }
